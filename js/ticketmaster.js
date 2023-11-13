@@ -1,4 +1,3 @@
-// 
 $("#search").on("click", function () {
     const genreArtistEvent = document.querySelector('#event').value;
     const city = document.querySelector('#city').value;
@@ -25,7 +24,7 @@ $("#search").on("click", function () {
             dataType: "json",
             success: function (json) {
                 if (json?._embedded?.events?.length !== undefined) {
-                    
+
                     $("#card-container").append(`<h1 class="pt-4">${json._embedded.events.length} events found.</h1>`)
                     console.log(json._embedded.events.length);
 
@@ -56,6 +55,26 @@ $("#search").on("click", function () {
                         let venueState = event._embedded.venues[0].state.stateCode;
                         let venueAddress = event._embedded.venues[0].address.line1;
                         let venueTicketLink = event.url;
+                        let minPriceRange, maxPriceRange;
+                        let currency;
+                        let pricerange = "";
+                        if (event.priceRanges && event.priceRanges.length > 0 && 'currency' in event.priceRanges[0]) {
+                            currency = event.priceRanges[0].currency;
+                        }
+                        if (event.priceRanges && event.priceRanges.length > 0) {
+                            if ('min' in event.priceRanges[0]) {
+                                minPriceRange = event.priceRanges[0].min;
+                            }
+                            if ('max' in event.priceRanges[0]) {
+                                maxPriceRange = event.priceRanges[0].max;
+                            }
+                            if (maxPriceRange != minPriceRange) {
+                                pricerange = `<p class="p text-secondary">${currency} Price Range: $${minPriceRange} - $${maxPriceRange}</p>`
+                            }
+                            else {
+                                pricerange = `<p class="p text-secondary">${currency} Price: $${minPriceRange}</p>`
+                            }
+                        }
 
 
                         // console.log("Venue Ticket Link: " +venueTicketLink);
@@ -73,6 +92,7 @@ $("#search").on("click", function () {
                                         <h2 class="h3 text-secondary">${venueName}</h2>
                                         <p class="p text-secondary"></p>
                                         <p class="p text-secondary">${venueAddress}.<br>${venueCity}, ${venueState}</p>
+                                        ${pricerange}
                                         <a href="${venueTicketLink}" class="btn btn-primary">Find tickets</a>
                                     </div>
                                     <div class=" col-md-4 col-6 text-end my-3">
@@ -88,7 +108,7 @@ $("#search").on("click", function () {
                     });
                 }
                 else {
-                    $("#card-container").append(`<h1 class="pt-4">Sorry... No results were found for the entered search term and city.</h1>`)
+                    $("#card-container").append(`<h3 class="pt-4">Sorry... No results were found for the entered search term and city.</h3>`)
 
                     //=======================================================================================================
                     // Logic for what happens here if neither are empty...
